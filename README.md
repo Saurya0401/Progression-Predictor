@@ -1,6 +1,6 @@
 # ProgressionPredictor
 A python program that predicts how much a user will like a particular chord progression.
-The program uses a machine learning algorithm called (Ridge Regression)[https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html] to predict based on inputs provided by the user. The inputs include a list of 'start chords' and a list of 'chords' provided by the user. For more details on the ML model, (see model_info)[model_info.md].
+The program uses a machine learning algorithm called [Ridge Regression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html) to predict based on inputs provided by the user. The inputs include a list of 'start chords' and a list of 'chords' provided by the user. For more details on the ML model, [see model_info](model_info.md).
 
 
 # Dependancies:
