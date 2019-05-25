@@ -18,9 +18,9 @@ class GUI:
         :param play_func: play_prog() from ProgressionPredictor.py
         :param title: the title of the GUI window
         :param width: default and minimum width of the GUI window
-        :param height: default and minimum height of the GUI window 
+        :param height: default and minimum height of the GUI window
         """
-        
+
         self.title = title
         self.width = width
         self.height = height
@@ -67,7 +67,8 @@ class GUI:
         self.accuracy = StringVar()
         self.accuracy_input = Entry(self.input_frame, font='Arial 12', textvariable=self.accuracy)
         self.accuracy_warning = Label(self.input_frame, font='Arial 10',
-                                      text="Warning: Higher accuracy means a longer initialisation time.", fg='red')
+                                      text="Please separate chords with a comma and space. \nWarning: Higher accuracy "
+                                           "means a longer initialisation time.", fg='orange')
         self.loading_text = Label(master=self.output_frame, font='Arial 12', text="Adding data, please wait...")
         self.finished = Label(master=self.output_frame, font='Arial 12', text='Done.')
         self.prog_input_label = Label(master=self.input_frame, font='Arial 12', text="Now enter a random progression: ")
@@ -130,12 +131,14 @@ class GUI:
         if self.init_thread.is_alive():
             self.init_thread.join()
         self.reset_frames()
+        self.accuracy_warning.config(text='Please enter only 4 chords, each separated by a comma and space.')
         self.rearrange_widgets({self.input_frame: {'row': 1, 'column': 1}, self.output_frame: {'row': 2, 'column': 1}})
         self.rearrange_widgets({self.prog_input_label: {'row': 1, 'column': 1, 'padx': 5},
                                 self.prog_input: {'row': 1, 'column': 2, 'padx': 8, 'columnspan': 2},
                                 self.info_button: {'row': 2, 'column': 1, 'pady': 5},
                                 self.test_button: {'row': 2, 'column': 2, 'pady': 5},
-                                self.play_button: {'row': 2, 'column': 3, 'pady': 5}})
+                                self.play_button: {'row': 2, 'column': 3, 'pady': 5},
+                                self.accuracy_warning: {'row': 3, 'column': 1, 'columnspan': 3}})
 
     def play_prog(self):
         """
