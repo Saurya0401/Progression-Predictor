@@ -18,7 +18,8 @@ To use the program, download `ProgressionPredictor.py`, `Resources.py`, `GUI.py`
 
 
 ### TODO:
-- Insert comments and docstrings in all scripts.
+- ~~Insert comments and docstrings in all scripts.~~
+- Make existing comments and docstrings more informative.
 - Complete error handling for user inputs passed via GUI.get_inputs().
 - Make error handling for importing modules more pythonic.
 - Further optimise Ridge model.
