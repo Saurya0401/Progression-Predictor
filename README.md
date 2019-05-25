@@ -17,4 +17,6 @@ The program uses a machine learning algorithm called [Ridge Regression](https://
 **TODO:**
 - Insert comments and docstrings in all scripts.
 - Complete error handling for user inputs passed via GUI.get_inputs().
+- Make error handling for importing modules more pythonic.
 - Further optimise Ridge model.
+- Make GUI more aesthetic.
