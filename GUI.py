@@ -10,6 +10,17 @@ except ModuleNotFoundError:
 class GUI:
 
     def __init__(self, main_func, init_func, test_func, play_func, title='Progression Predictor', width=400, height=300):
+        """
+        Defines all functions, variables, GUI widgets and GUI variables.
+        :param main_func: main() from ProgressionPredictor.py
+        :param init_func: init_user() from ProgressionPredictor.py
+        :param test_func: test() from ProgressionPredictor.py
+        :param play_func: play_prog() from ProgressionPredictor.py
+        :param title: the title of the GUI window
+        :param width: default and minimum width of the GUI window
+        :param height: default and minimum height of the GUI window 
+        """
+        
         self.title = title
         self.width = width
         self.height = height
@@ -20,7 +31,7 @@ class GUI:
         self.root.grid_rowconfigure((0, 3), weight=1)
         self.root.grid_columnconfigure((0, 2), weight=1)
 
-        # defining functions and threads
+        # defining functions, variables and threads
         self.info_displayed = False
         self.next_func = None
         self.main_func = main_func
@@ -70,6 +81,11 @@ class GUI:
         self.next_button = Button(master=self.input_frame, text="Next", font='Arial 12', command=self.next_button_click)
 
     def start_window(self):
+        """
+        Displays the first GUI window. Also sets column weights for both input_frame and output_frame so that all
+        widgets inside them are centered.
+        """
+
         self.rearrange_widgets({self.input_frame: {'row': 2, 'column': 1, 'sticky': 'nsew'},
                                 self.output_frame: {'row': 1, 'column': 1, 'sticky': 'nsew'}})
         self.input_frame.grid_columnconfigure((0, 4), weight=1)
@@ -122,6 +138,10 @@ class GUI:
                                 self.play_button: {'row': 2, 'column': 3, 'pady': 5}})
 
     def play_prog(self):
+        """
+        Creates a thread whose target is self.play_func and joins the thread if it is already running.
+        :return: Starts the thread.
+        """
         self.play_button.config(state='disabled')
         play_thread = threading.Thread(target=self.play_func)
         if play_thread.is_alive():
@@ -129,6 +149,11 @@ class GUI:
         return play_thread.start()
 
     def test_prog(self):
+        """
+        Creates a thread whose target is self.test_func and joins the thread if it is already running.
+        :return: Starts the thread.
+        """
+
         self.test_button.config(state='disabled')
         test_thread = threading.Thread(target=self.test_func)
         if test_thread.is_alive():
@@ -136,6 +161,11 @@ class GUI:
         return test_thread.start()
 
     def next_button_click(self):
+        """
+        Removes all widgets from both input_frame and output_frame and calls a specified function.
+        :return:
+        """
+
         self.reset_frames()
         self.next_func()
 
@@ -157,6 +187,10 @@ class GUI:
         self.rearrange_widgets({self.output_frame: {'row': 2, 'column': 1}, self.error: {'row': 1, 'column': 1}})
 
     def reset_frames(self):
+        """
+        Removes all widgets from both input_frame and output_frame.
+        """
+
         self.remove_widget([
             i for i in self.output_frame.winfo_children() if len(self.output_frame.winfo_children()) > 0])
         self.remove_widget([
@@ -164,6 +198,12 @@ class GUI:
 
     @staticmethod
     def remove_widget(widgets, p_g='g'):
+        """
+        Removes widgets using either grid_remove() or pack_forget().
+        :param widgets: a list of widgets to be removed
+        :param p_g: geometry manager used to place the widgets, p = pack, g = grid (default).
+        """
+
         for i in widgets:
             if p_g == 'p':
                 i.pack_forget()
@@ -172,6 +212,12 @@ class GUI:
 
     @staticmethod
     def rearrange_widgets(widgets_properties, p_g='g'):
+        """
+        Modifies the shape and placement of widgets.
+        :param widgets_properties: A dictionary containing the widgets and their properties.
+        :param p_g: geometry manager used to place the widgets, p = pack, g = grid (default).
+        """
+
         for widget, properties in widgets_properties.items():
             if p_g == 'p':
                 widget.pack(cnf=properties)
