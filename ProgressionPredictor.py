@@ -2,6 +2,7 @@ try:
     from Resources import ProgPred, ProgTest
     from GUI import GUI
     from pathlib import Path
+    from os import mkdir
 except ModuleNotFoundError:
     pass
 
@@ -27,9 +28,11 @@ def format_inputs(inputs):
 
 def create_datafile(filename):
     """
-    Creates a (csv) file with a predetermined header.
+    Creates the 'users' folder if it doesn't exist, then creates a (csv) file with a predetermined header in
+    that folder.
     """
-
+    if not Path('users/').exists():
+        mkdir('users/')
     file = open(filename, 'w', newline='')
     file.writelines("C0,C1,C2,C3,L\n")
     file.close()
