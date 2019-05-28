@@ -17,7 +17,7 @@ class GUI:
         :param test_func: test() from ProgressionPredictor.py
         :param play_func: play_prog() from ProgressionPredictor.py
         :param title: the title of the GUI window
-        :param width: default and minimum width of the GUI window
+        :param width: default and fixed width of the GUI window
         :param height: default and minimum height of the GUI window
         """
 
@@ -36,7 +36,6 @@ class GUI:
         self.next_func = None
         self.main_func = main_func
         self.init_func = init_func
-        self.init_thread = threading.Thread(target=self.init_func, name='init_thread')
         self.test_func = test_func
         self.play_func = play_func
 
@@ -78,7 +77,7 @@ class GUI:
         self.play_button = Button(master=self.input_frame, text="Play!", font='Arial 12', command=self.play_prog)
         self.info_button = Button(master=self.input_frame, text="Info", font='Arial 12', command=self.show_info)
         self.output_textbox = Label(master=self.output_frame)
-        self.info_textbox = Label(master=self.output_frame)
+        self.info_textbox = Label(master=self.output_frame, text="Test first to show info.")
         self.next_button = Button(master=self.input_frame, text="Next", font='Arial 12', command=self.next_button_click)
 
     def start_window(self):
@@ -104,7 +103,8 @@ class GUI:
         self.next_func = self.get_filename
 
     def get_filename(self):
-        self.rearrange_widgets({self.username_label: {'row': 1, 'column': 1}, self.username_input: {'row': 1, 'column': 2},
+        self.rearrange_widgets({self.username_label: {'row': 1, 'column': 1},
+                                self.username_input: {'row': 1, 'column': 2},
                                 self.next_button: {'row': 3, 'column': 1, 'columnspan': 2, 'pady': 5}})
         self.next_func = self.main_func
 
@@ -117,10 +117,9 @@ class GUI:
                                 self.accuracy_input: {'row': 3, 'column': 2, 'padx': 8},
                                 self.accuracy_warning: {'row': 4, 'column': 1, 'columnspan': 2, 'padx': 5},
                                 self.next_button: {'row': 6, 'column': 1, 'columnspan': 2, 'pady': 5}})
-        self.next_func = self.loading_screen
+        self.next_func = self.init_thread
 
     def loading_screen(self):
-        self.init_thread.start()
         self.reset_frames()
         self.next_button.config(state='disabled', command=self.test_window)
         self.rearrange_widgets({self.output_frame: {'row': 1, 'column': 1}, self.input_frame: {'row': 2, 'column': 1}})
@@ -128,8 +127,7 @@ class GUI:
                                 self.next_button: {'row': 1, 'column': 1, 'pady': 5}})
 
     def test_window(self):
-        if self.init_thread.is_alive():
-            self.init_thread.join()
+        self.init_thread(kill=True)
         self.reset_frames()
         self.accuracy_warning.config(text='Please enter only 4 chords, each separated by a comma and space.')
         self.rearrange_widgets({self.input_frame: {'row': 1, 'column': 1}, self.output_frame: {'row': 2, 'column': 1}})
@@ -140,27 +138,37 @@ class GUI:
                                 self.play_button: {'row': 2, 'column': 3, 'pady': 5},
                                 self.accuracy_warning: {'row': 3, 'column': 1, 'columnspan': 3}})
 
+    def init_thread(self, kill=False):
+        """
+        Creates and manages a thread whose target is self.init_func.
+        :param kill: Wait for the thread to join if set to true.
+        """
+        init_thread = threading.Thread(target=self.init_func)
+        if init_thread.is_alive():
+            init_thread.join()
+        if not kill:
+            return init_thread.start()
+
     def play_prog(self):
         """
-        Creates a thread whose target is self.play_func and joins the thread if it is already running.
-        :return: Starts the thread.
+        Creates and manages a daemon thread whose target is self.play_func.
+        :return: Start the thread.
         """
         self.play_button.config(state='disabled')
-        play_thread = threading.Thread(target=self.play_func)
-        if play_thread.is_alive():
-            play_thread.join(0.1)
-        return play_thread.start()
+        play_thread = threading.Thread(target=self.play_func, daemon=True)
+        if not play_thread.is_alive():
+            return play_thread.start()
 
     def test_prog(self):
         """
-        Creates a thread whose target is self.test_func and joins the thread if it is already running.
-        :return: Starts the thread.
+        Starts and manages a thread whose target is self.test_func.
+        :return: Start the thread.
         """
 
         self.test_button.config(state='disabled')
         test_thread = threading.Thread(target=self.test_func)
         if test_thread.is_alive():
-            test_thread.join(0.1)
+            test_thread.join()
         return test_thread.start()
 
     def next_button_click(self):
@@ -186,7 +194,8 @@ class GUI:
             self.info_displayed = True
 
     def show_error_window(self):
-        self.remove_widget([i for i in self.output_frame.winfo_children() if len(self.output_frame.winfo_children()) > 0])
+        self.remove_widget([
+            i for i in self.output_frame.winfo_children() if len(self.output_frame.winfo_children()) > 0])
         self.rearrange_widgets({self.output_frame: {'row': 2, 'column': 1}, self.error: {'row': 1, 'column': 1}})
 
     def reset_frames(self):
@@ -216,8 +225,8 @@ class GUI:
     @staticmethod
     def rearrange_widgets(widgets_properties, p_g='g'):
         """
-        Modifies the shape and placement of widgets.
-        :param widgets_properties: A dictionary containing the widgets and their properties.
+        Modifies the shape and placement of multiple widgets.
+        :param widgets_properties: A dictionary containing widgets and their properties.
         :param p_g: geometry manager used to place the widgets, p = pack, g = grid (default).
         """
 
