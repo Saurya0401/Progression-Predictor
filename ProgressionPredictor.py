@@ -6,14 +6,12 @@ try:
 except ModuleNotFoundError:
     pass
 
-# TODO: Handle input errors in init_user().
-
 
 def format_inputs(inputs):
     """
     Formats inputs provided by init_user() then returns them to init_user().
     :param inputs: raw inputs
-    :return: formatted inputs
+    :return: formatted inputs or errors
     """
 
     usertype = int(inputs[0])
@@ -22,8 +20,38 @@ def format_inputs(inputs):
     start_chord_array[0] = sorted(start_chord_array[0])
     chord_array = ProgPred.to_cnv([x.lower() for x in inputs[3].split(', ')])
     chord_array[0] = sorted(chord_array[0])
-    acc = int(inputs[4]) * 10000
-    return [usertype, fname, start_chord_array, chord_array, acc]
+    acc = float(inputs[4]) * 10000
+    inputs = [usertype, fname, start_chord_array[0], chord_array[0], acc]
+    errors = ["Invalid start chords: {}".format(", ".join(start_chord_array[1])) if start_chord_array[1] else None,
+              "Invalid chords: {}".format(", ".join(chord_array[1])) if chord_array[1] else None,
+              "Invalid accuracy: %.2f" % (acc/10000) if (acc < 10000 or acc > 100000) else None]
+    return inputs, errors
+
+
+def init_user():
+    """
+    Passes raw inputs from gui variables to format_inputs(), then uses the returned inputs to create a user file.
+    """
+
+    try:
+        all_inputs = format_inputs([gui.usertype.get(), gui.username.get(), gui.start_chords.get(), gui.chords.get(),
+                                    gui.accuracy.get()])
+        print(all_inputs)
+        inputs = all_inputs[0]
+        errors = all_inputs[1]
+        if all(err == errors[0] for err in errors):
+            gui.loading_screen()
+            create_datafile('users/{}'.format(inputs[1]))
+            ini_prog = ProgPred(datafile='users/{}'.format(inputs[1]), c0_array=inputs[2], c_array=inputs[3])
+            ini_prog.add_data(inputs[4])
+            gui.loading_text.config(text="Done.")
+            return gui.next_button.config(state='normal')
+        else:
+            raise ValueError("INVALID INPUTS\n{}".format("\n".join(str(e) for e in errors if e is not None)))
+    except ValueError as input_error:
+        gui.error.config(text=input_error.args[0])
+        gui.show_error_window()
+        gui.get_inputs()
 
 
 def create_datafile(filename):
@@ -36,22 +64,6 @@ def create_datafile(filename):
     file = open(filename, 'w', newline='')
     file.writelines("C0,C1,C2,C3,L\n")
     file.close()
-
-
-def init_user():
-    """
-    Passes raw inputs from gui variables to format_inputs(), then uses the returned inputs to call functions that create
-    csv file.
-    """
-
-    inputs = format_inputs([gui.usertype.get(), gui.username.get(), gui.start_chords.get(), gui.chords.get(),
-                            gui.accuracy.get()])
-    print(inputs)
-    create_datafile('users/{}'.format(inputs[1]))
-    ini_prog = ProgPred(datafile='users/{}'.format(inputs[1]), c0_array=inputs[2][0], c_array=inputs[3][0])
-    ini_prog.add_data(inputs[4])
-    gui.loading_text.config(text="Done.")
-    return gui.next_button.config(state='normal')
 
 
 def test():
@@ -69,6 +81,7 @@ def test():
             pred = ProgTest(df='users/{}'.format(filename), test_array=test_list[0])
             gui.output_textbox.config(text=pred.predict()[0])
             gui.info_textbox.config(text=pred.predict()[1])
+            gui.info_displayed = False
             gui.show_output()
             return gui.test_button.config(state='normal')
         elif len(test_list[1]):
