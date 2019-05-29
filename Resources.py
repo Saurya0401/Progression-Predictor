@@ -1,17 +1,14 @@
-try:
-    import pandas as pd
-    import numpy as np
-    import csv
-    import playsound
-    import random
-    from sklearn import preprocessing, model_selection, linear_model, metrics
-except ModuleNotFoundError:
-    pass
+import pandas as pd
+import numpy as np
+import csv
+import playsound
+import random
+from sklearn import preprocessing, model_selection, linear_model, metrics
 
 # TODO: Make Ridge model more accurate
 
 
-class ProgPred:
+class ProgCreate:
     """
     This class has the dual functionality of creating a dataset for a new user and playing a user provided chord
     progression.
@@ -135,9 +132,9 @@ class ProgPred:
         cnv_list = []
         err_list = []
         for c in chord_list:
-            if c in ProgPred.chord_dict.keys():
-                cnv_list.append(ProgPred.chord_dict[c])
-            elif c not in ProgPred.chord_dict.keys():
+            if c in ProgCreate.chord_dict.keys():
+                cnv_list.append(ProgCreate.chord_dict[c])
+            elif c not in ProgCreate.chord_dict.keys():
                 err_list.append(''.join(["#" if x == "s" else x for x in c]))
         return [cnv_list, err_list]
 
@@ -203,4 +200,4 @@ class ProgTest:
         output = "I am {}% sure that you like this progression.".format('%.2f' % (100 * y_usr[0]))
         model_info = "Predicted using a {} model with {} accuracy from {} data samples.".format(model[0], '%.3f' % acc,
                                                                                                 self.data_count())
-        return [output, model_info]
+        return output, model_info
