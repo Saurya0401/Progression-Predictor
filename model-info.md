@@ -13,7 +13,7 @@ The dataset this model runs on is a `.csv` file initially containing 5 columns. 
 `C0`, `C1`, `C2`, `C3` are **cnv** columns and every cell under these colums contain a integer value from 1-24. These 
 directly correspond to 24 chords (A Major to G# Minor). Every row is a 4-chord progression, wherein `C0` is the first chord, `C1` the second chord, `C2` the third chord and `C3` the fourth. 
 `L` represents, on a scale from 0.00 - 1.00, the arbitrary 'score' of the progression. The higher the score, the more likely it is for the user to like the progression.
-The function `make_cnv()` method from the `ProgPred` class in [Resources.py][4] is resposible for making every progression row and calculating the value of `L`.
+The function `make_cnv()` method from the `ProgCreate` class in [Resources.py][4] is resposible for making every progression row and calculating the value of `L`.
 
 #### Preparing the dataset for the Ridge model:
 The problem with the dataset in it's initial form is that `C0`, `C1`, `C2`, `C3` are categorical integer values while `L` is a continuous value, which is not compatible with the Ridge model. As such [one-hot encoding][3] is done to make the dataset compatible and upon doing so the number of X features changes to 96 (4 * 24). Then, train-test split is performed with a test ratio of 0.2 as a rudimentary form of cross-validation. Both these steps are sequentially done by the `__init__()` method from the `ProgTest` class in [Resources.py][4].
@@ -29,7 +29,7 @@ There are 3 user inputs. Since these inputs are stored under different named var
 
 
 ### Glossary:
-**CNV/cnv**: An integer value that directly corresponds to a chord. It is an abbreviation for **C**hord-**N**umber **V**alue. The `chord_dict` dictionary from the `ProgPred` class in [Resources.py][4] contains all chords and their corresponding cnvs.
+**CNV/cnv**: An integer value that directly corresponds to a chord. It is an abbreviation for **C**hord-**N**umber **V**alue. The `chord_dict` dictionary from the `ProgCreate` class in [Resources.py][4] contains all chords and their corresponding cnvs.
 
 [1]: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html
 [2]: https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
