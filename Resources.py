@@ -136,7 +136,7 @@ class ProgCreate:
                 cnv_list.append(ProgCreate.chord_dict[c])
             elif c not in ProgCreate.chord_dict.keys():
                 err_list.append(''.join(["#" if x == "s" else x for x in c]))
-        return [cnv_list, err_list]
+        return cnv_list, err_list
 
 
 class ProgTest:
