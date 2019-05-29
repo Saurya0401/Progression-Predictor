@@ -1,10 +1,8 @@
-try:
-    from Resources import ProgPred, ProgTest
-    from GUI import GUI
-    from pathlib import Path
-    from os import mkdir
-except ModuleNotFoundError:
-    pass
+from Resources import ProgCreate, ProgTest
+from GUI import GUI
+from os import path, mkdir
+
+# TODO: Remove lists from return statements.
 
 
 def format_inputs(inputs):
@@ -16,9 +14,9 @@ def format_inputs(inputs):
 
     usertype = int(inputs[0])
     fname = str(inputs[1] + '.csv')
-    start_chord_array = ProgPred.to_cnv([x.lower() for x in inputs[2].split(', ')])
+    start_chord_array = ProgCreate.to_cnv([x.lower() for x in inputs[2].split(', ')])
     start_chord_array[0] = sorted(start_chord_array[0])
-    chord_array = ProgPred.to_cnv([x.lower() for x in inputs[3].split(', ')])
+    chord_array = ProgCreate.to_cnv([x.lower() for x in inputs[3].split(', ')])
     chord_array[0] = sorted(chord_array[0])
     acc = float(inputs[4]) * 10000
     inputs = [usertype, fname, start_chord_array[0], chord_array[0], acc]
@@ -30,7 +28,8 @@ def format_inputs(inputs):
 
 def init_user():
     """
-    Passes raw inputs from gui variables to format_inputs(), then uses the returned inputs to create a user file.
+    Passes raw inputs from gui variables to format_inputs(), then uses the returned inputs to call functions that create
+    csv file.
     """
 
     try:
@@ -42,7 +41,7 @@ def init_user():
         if all(err == errors[0] for err in errors):
             gui.loading_screen()
             create_datafile('users/{}'.format(inputs[1]))
-            ini_prog = ProgPred(datafile='users/{}'.format(inputs[1]), c0_array=inputs[2], c_array=inputs[3])
+            ini_prog = ProgCreate(datafile='users/{}'.format(inputs[1]), c0_array=inputs[2], c_array=inputs[3])
             ini_prog.add_data(inputs[4])
             gui.loading_text.config(text="Done.")
             return gui.next_button.config(state='normal')
@@ -59,11 +58,11 @@ def create_datafile(filename):
     Creates the 'users' folder if it doesn't exist, then creates a (csv) file with a predetermined header in
     that folder.
     """
-    if not Path('users/').exists():
+    if not path.exists('users/'):
         mkdir('users/')
     file = open(filename, 'w', newline='')
     file.writelines("C0,C1,C2,C3,L\n")
-    file.close()
+    return file.close()
 
 
 def test():
@@ -73,7 +72,7 @@ def test():
     """
 
     filename = str(gui.username.get() + '.csv')
-    test_list = ProgPred.to_cnv([x.lower() for x in gui.prog_input.get().split(', ')])
+    test_list = ProgCreate.to_cnv([x.lower() for x in gui.prog_input.get().split(', ')])
     print(test_list)
     try:
         if len(test_list[0]) == 4:
@@ -103,12 +102,12 @@ def play_prog():
     :return: change state of gui.test_button to normal provided an instance of ProgPred is successfully created.
     """
 
-    chords = ProgPred.to_cnv([x.lower() for x in gui.prog.get().split(', ')])
+    chords = ProgCreate.to_cnv([x.lower() for x in gui.prog.get().split(', ')])
     print(chords)
     try:
         if len(chords[0]) == 4:
             # create an instance of the ProgPred class provided no exceptions are raised.
-            prog = ProgPred()
+            prog = ProgCreate()
             prog.cnv = chords[0]
             print(prog.cnv)
             prog.play_prog()
@@ -135,7 +134,7 @@ def main():
     f_name = str(gui.username.get() + '.csv')
     if u_type == 1:
         try:
-            if Path('users/{}'.format(f_name)).exists():
+            if path.exists('users/{}'.format(f_name)):
                 raise FileExistsError("User already exists.")
             if not gui.username.get():
                 raise ValueError("Name cannot be blank.")
@@ -148,7 +147,7 @@ def main():
             gui.get_inputs()
     elif u_type == 2:
         try:
-            if not Path('users/{}'.format(f_name)).exists():
+            if not path.exists('users/{}'.format(f_name)):
                 raise FileNotFoundError("User not found.")
         except FileNotFoundError as filename_error:
             gui.error.config(text=filename_error.args[0])
