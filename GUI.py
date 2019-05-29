@@ -1,8 +1,5 @@
-try:
-    from tkinter import *
-    import threading
-except ModuleNotFoundError:
-    pass
+from tkinter import *
+import threading
 
 # TODO: Make GUI more aesthetic
 
