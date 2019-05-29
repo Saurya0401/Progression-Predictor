@@ -14,14 +14,14 @@ def format_inputs(inputs):
 
     usertype = int(inputs[0])
     fname = str(inputs[1] + '.csv')
-    start_chord_array = ProgCreate.to_cnv([x.lower() for x in inputs[2].split(', ')])
-    start_chord_array[0] = sorted(start_chord_array[0])
-    chord_array = ProgCreate.to_cnv([x.lower() for x in inputs[3].split(', ')])
-    chord_array[0] = sorted(chord_array[0])
+    start_chords, start_chord_errors = ProgCreate.to_cnv([x.lower() for x in inputs[2].split(', ')])
+    start_chords = sorted(start_chords)
+    chords, chord_errors = ProgCreate.to_cnv([x.lower() for x in inputs[3].split(', ')])
+    chords = sorted(chords)
     acc = float(inputs[4]) * 10000
-    inputs = [usertype, fname, start_chord_array[0], chord_array[0], acc]
-    errors = ["Invalid start chords: {}".format(", ".join(start_chord_array[1])) if start_chord_array[1] else None,
-              "Invalid chords: {}".format(", ".join(chord_array[1])) if chord_array[1] else None,
+    inputs = [usertype, fname, start_chords, chords, acc]
+    errors = ["Invalid start chords: {}".format(", ".join(start_chord_errors)) if start_chord_errors else None,
+              "Invalid chords: {}".format(", ".join(chord_errors)) if chord_errors else None,
               "Invalid accuracy: %.2f" % (acc/10000) if (acc < 10000 or acc > 100000) else None]
     return inputs, errors
 
@@ -33,12 +33,10 @@ def init_user():
     """
 
     try:
-        all_inputs = format_inputs([gui.usertype.get(), gui.username.get(), gui.start_chords.get(), gui.chords.get(),
-                                    gui.accuracy.get()])
-        print(all_inputs)
-        inputs = all_inputs[0]
-        errors = all_inputs[1]
-        if all(err == errors[0] for err in errors):
+        inputs, errors = format_inputs([gui.usertype.get(), gui.username.get(), gui.start_chords.get(),
+                                        gui.chords.get(), gui.accuracy.get()])
+        print(inputs, errors)
+        if all(err is None for err in errors):
             gui.loading_screen()
             create_datafile('users/{}'.format(inputs[1]))
             ini_prog = ProgCreate(datafile='users/{}'.format(inputs[1]), c0_array=inputs[2], c_array=inputs[3])
@@ -72,22 +70,22 @@ def test():
     """
 
     filename = str(gui.username.get() + '.csv')
-    test_list = ProgCreate.to_cnv([x.lower() for x in gui.prog_input.get().split(', ')])
-    print(test_list)
+    test_list, test_errors = ProgCreate.to_cnv([x.lower() for x in gui.prog_input.get().split(', ')])
+    print(test_list, test_errors)
     try:
-        if len(test_list[0]) == 4:
+        if len(test_list) == 4:
             # create an instance of the ProgTest class provided no exceptions are raised.
-            pred = ProgTest(df='users/{}'.format(filename), test_array=test_list[0])
-            gui.output_textbox.config(text=pred.predict()[0])
-            gui.info_textbox.config(text=pred.predict()[1])
+            test_prog = ProgTest(df='users/{}'.format(filename), test_array=test_list)
+            gui.output_textbox.config(text=test_prog.predict()[0])
+            gui.info_textbox.config(text=test_prog.predict()[1])
             gui.info_displayed = False
             gui.show_output()
             return gui.test_button.config(state='normal')
-        elif len(test_list[1]):
-            if test_list[1][0] == '':
+        elif len(test_errors):
+            if test_errors[0] == '':
                 raise ValueError("Bad Input: No chords.")
             else:
-                raise ValueError("Bad Input: Invalid chords: '{}'".format(", ".join(test_list[1])))
+                raise ValueError("Bad Input: Invalid chords: '{}'".format(", ".join(test_errors)))
         else:
             raise ValueError("Bad Input: Incorrect number of chords.")
     except ValueError as input_error:
